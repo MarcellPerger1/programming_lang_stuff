@@ -8,7 +8,31 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from abc import ABC, abstractmethod
 from inspect import isclass
-from typing import Type, overload, TypeVar, Callable, List
+from typing import Type, overload, TypeVar, Callable, List, Iterable
+
+
+def _remove_suffix(s: str, suffix: str):
+    if s.endswith(suffix):
+        return s[:-len(suffix)]
+    return s
+
+
+def _to_snake_case(s: str, upper=False):
+    out = ''
+    last = None
+    for c in s:
+        if last is None:
+            out += c.lower()
+        else:
+            if last not in '- _' and last.islower() and c.isupper():
+                out += '_' + c.lower()
+            else:
+                out += c.lower()
+        last = c
+    if upper:
+        out = out.upper()
+    return out
+
 
 NAME_CHARS = string.ascii_letters + string.digits + '_'
 OP_CHARS = '+-*/='
@@ -200,6 +224,25 @@ class OpToken(TokenType):
                 raise SyntaxError(f"Invalid operator: {self.text!r}")
         return tokens
 
+    @classmethod
+    def aug_assign(cls, name: str = None, bases: 'tuple[Type[OpToken]]' = None,
+                   module: str = None):
+        if name is None:
+            cls_name = _remove_suffix(cls.__name__, 'Token')
+            name = f"{cls_name}AssignToken"
+        if bases is None:
+            bases = (OpToken,)
+
+        @op_token(cls.op_sym + '=')
+        class New(*bases):
+            pass
+        assert issubclass(New, OpToken)
+
+        New.__name__ = name
+        New.__qualname__ = name
+        New.__module__ = module or cls.__module__  # can't really do better than that
+        return New
+
 
 OPS: 'dict[str, Type[OpToken]]' = {}
 
@@ -240,6 +283,12 @@ class DivToken(OpToken):
 @op_token("=")
 class EqToken(OpToken):
     pass
+
+
+AssignAddToken = AddToken.aug_assign()
+AssignSubToken = SubToken.aug_assign()
+AssignMulToken = MulToken.aug_assign()
+AssignDivToken = DivToken.aug_assign()
 
 
 class Tokenizer2:
@@ -308,20 +357,20 @@ class Tokenizer2:
         self.token: Token | None = None
 
 
-def _remove_suffix(s: str, suffix: str):
-    if s.endswith(suffix):
-        return s[:-len(suffix)]
-    return s
-
-
-if __name__ == '__main__':
-    _t = Tokenizer2('123a_abc+764- obj/62 *+9 az++')
-    _t.tokenize()
-    for _tok in _t.tokens:
-        if isinstance(_tok.type, WhitespaceToken):
+def print_token_stream(tks: Iterable[Token], print_ws=False):
+    for _tok in tks:
+        if not print_ws and isinstance(_tok.type, WhitespaceToken):
             continue
         print(
-            _remove_suffix(type(_tok.type).__name__, 'Token').upper().rjust(15),
+            _to_snake_case(
+                _remove_suffix(type(_tok.type).__name__, 'Token')).upper().rjust(15),
             ' | ',
             _tok.text if not isinstance(_tok.type, WhitespaceToken) else repr(_tok.text),
         )
+
+
+if __name__ == '__main__':
+    _t = Tokenizer2('123a_abc+764 =- obj/62 *+9 az++ or s=90-7 and q+=-8 or w/=98-i\n'
+                    ' bc*=8 or ee+q  -=4gt9')
+    _t.tokenize()
+    print_token_stream(_t.tokens, True)
