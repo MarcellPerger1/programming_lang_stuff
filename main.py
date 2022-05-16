@@ -17,14 +17,20 @@ def _remove_suffix(s: str, suffix: str):
     return s
 
 
+def _is_cased(c: str):
+    return c.isupper() or c.islower()
+
 def _to_snake_case(s: str, upper=False):
     out = ''
     last = None
     for c in s:
-        if last is None:
+        if c in '_ -':
+            out += '-'
+        elif last is None:
             out += c.lower()
         else:
-            if last not in '- _' and last.islower() and c.isupper():
+            # last is letter and on boundary
+            if _is_cased(last) and last.islower() and c.isupper():
                 out += '_' + c.lower()
             else:
                 out += c.lower()
@@ -81,6 +87,9 @@ class Token(UsesTokenizer):
 
     def accept(self):
         self.text += self.char
+
+    def text_repr(self) -> str:
+        return self.text
 
 
 class TokenType(UsesTokenizer, ABC):
@@ -189,6 +198,9 @@ class WhitespaceToken(TokenType):
 
     def do_cont(self) -> bool:
         return self.char.isspace()
+
+    def text_repr(self) -> str:
+        return repr(self.text)
 
 
 class OpToken(TokenType):
