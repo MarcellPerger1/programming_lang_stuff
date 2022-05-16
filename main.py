@@ -88,9 +88,6 @@ class Token(UsesTokenizer):
     def accept(self):
         self.text += self.char
 
-    def text_repr(self) -> str:
-        return self.text
-
 
 class TokenType(UsesTokenizer, ABC):
     def __init__(self, tokenizer: Tokenizer, token: Token):
@@ -143,6 +140,13 @@ class TokenType(UsesTokenizer, ABC):
 
     def end(self) -> List[Token] | None:
         pass
+
+    def text_repr(self) -> str:
+        return self.text
+
+    @classmethod
+    def type_repr(cls, upper=False) -> str:
+        return _to_snake_case(_remove_suffix(cls.__name__, 'Token'), upper)
 
 
 TOKEN_TYPES: 'list[Type[TokenType]]' = []
@@ -374,10 +378,9 @@ def print_token_stream(tks: Iterable[Token], print_ws=False):
         if not print_ws and isinstance(_tok.type, WhitespaceToken):
             continue
         print(
-            _to_snake_case(
-                _remove_suffix(type(_tok.type).__name__, 'Token')).upper().rjust(15),
+            _tok.type.type_repr(True).rjust(15),
             ' | ',
-            _tok.text if not isinstance(_tok.type, WhitespaceToken) else repr(_tok.text),
+            _tok.type.text_repr()
         )
 
 
