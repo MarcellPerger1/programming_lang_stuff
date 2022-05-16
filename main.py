@@ -52,7 +52,7 @@ class State(Enum):
 
 
 class UsesTokenizer:
-    def __init__(self, tokenizer: Tokenizer2):
+    def __init__(self, tokenizer: Tokenizer):
         self.tokenizer = tokenizer
 
     @property
@@ -66,7 +66,7 @@ class UsesTokenizer:
 
 @dataclass
 class Token(UsesTokenizer):
-    tokenizer: Tokenizer2 = field(repr=False)
+    tokenizer: Tokenizer = field(repr=False)
     text: str = ''
     type: TokenType = None
 
@@ -84,7 +84,7 @@ class Token(UsesTokenizer):
 
 
 class TokenType(UsesTokenizer, ABC):
-    def __init__(self, tokenizer: Tokenizer2, token: Token):
+    def __init__(self, tokenizer: Tokenizer, token: Token):
         super().__init__(tokenizer)
         self.token = token
 
@@ -291,7 +291,7 @@ AssignMulToken = MulToken.aug_assign()
 AssignDivToken = DivToken.aug_assign()
 
 
-class Tokenizer2:
+class Tokenizer:
     def __init__(self, text):
         self.text: str = text
 
@@ -370,7 +370,7 @@ def print_token_stream(tks: Iterable[Token], print_ws=False):
 
 
 if __name__ == '__main__':
-    _t = Tokenizer2('123a_abc+764 =- obj/62 *+9 az++ or s=90-7 and q+=-8 or w/=98-i\n'
+    _t = Tokenizer('123a_abc+764 =- obj/62 *+9 az++ or s=90-7 and q+=-8 or w/=98-i\n'
                     ' bc*=8 or ee+q  -=4gt9')
     _t.tokenize()
     print_token_stream(_t.tokens, True)
