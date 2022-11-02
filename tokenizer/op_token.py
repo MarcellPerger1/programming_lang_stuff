@@ -78,4 +78,5 @@ def op_token(sym: str):
 
 
 class AugAssignBaseToken(OpToken):
+    """A base class used to mark that a token is for augmented assignment eg. `+=`"""
     pass
