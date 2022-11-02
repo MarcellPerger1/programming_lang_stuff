@@ -71,6 +71,7 @@ AssignAddToken = AddToken.aug_assign()
 AssignSubToken = SubToken.aug_assign()
 AssignMulToken = MulToken.aug_assign()
 AssignDivToken = DivToken.aug_assign()
+AssignModToken = ModToken.aug_assign()
 
 
 def init_tokens():
