@@ -57,6 +57,11 @@ class DivToken(OpToken):
     pass
 
 
+@op_token('%')
+class ModToken(OpToken):
+    pass
+
+
 @op_token("=")
 class EqToken(OpToken):
     pass
