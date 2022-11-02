@@ -43,14 +43,14 @@ class OpToken(TokenType):
         return tokens
 
     @classmethod
-    def aug_assign(cls, add_self=True, name: str = None,
+    def aug_assign(cls, inherit_self=True, name: str = None,
                    bases: 'tuple[Type[OpToken]]' = None,
                    module: str = None):
         if name is None:
             cls_name = remove_suffix(cls.__name__, 'Token')
             name = f"{cls_name}AssignToken"
         if bases is None:
-            bases = (cls, AugAssignBaseToken) if add_self else (AugAssignBaseToken,)
+            bases = (cls, AugAssignBaseToken) if inherit_self else (AugAssignBaseToken,)
 
         @op_token(cls.op_sym + '=')
         class New(*bases):
