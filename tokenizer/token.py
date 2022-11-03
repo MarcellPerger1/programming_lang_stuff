@@ -32,6 +32,8 @@ class Token(UsesTokenizer):
 
 
 class TokenType(UsesTokenizer, ABC):
+    invalid = False
+
     def __init__(self, tokenizer: Tokenizer, token: Token):
         super().__init__(tokenizer)
         self.token = token
@@ -49,7 +51,7 @@ class TokenType(UsesTokenizer, ABC):
     def accept(self):
         self.token.accept()
 
-    def set_type(self, c: TokenType | Type[TokenType]):
+    def set_type(self, c: TokenType | type[TokenType]):
         if isclass(c):
             self.token.set_class(c)
         else:
@@ -91,7 +93,8 @@ class TokenType(UsesTokenizer, ABC):
         return to_snake_case(remove_suffix(cls.__name__, 'Token'), upper)
 
 
-TOKEN_TYPES: 'list[Type[TokenType]]' = []
+TOKEN_TYPES: list[type[TokenType]] = []
+INVALID_TOKEN_TYPES: list[type[TokenType]] = []
 
 TT = TypeVar('TT', bound=Type[TokenType])
 
@@ -104,14 +107,15 @@ def register_token(cls: TT, /) -> TT: ...
 def register_token(at: int | None, /) -> Callable[[TT], TT]: ...
 
 
-def register_token(arg: Type[TokenType] | int | None):
+def register_token(arg: type[TokenType] | int | None):
     at: int | None = arg if not isclass(arg) else None
 
-    def decor(cls: Type[TokenType]):
+    def decor(cls: type[TokenType]):
+        target = INVALID_TOKEN_TYPES if getattr(cls, 'invalid', False) else TOKEN_TYPES
         if at is None:
-            TOKEN_TYPES.append(cls)
+            target.append(cls)
         else:
-            TOKEN_TYPES.insert(at, cls)
+            target.insert(at, cls)
         return cls
 
     if isclass(arg):

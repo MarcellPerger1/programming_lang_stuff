@@ -74,6 +74,17 @@ AssignDivToken = DivToken.aug_assign()
 AssignModToken = ModToken.aug_assign()
 
 
+@register_token
+class InvalidToken(TokenType):
+    invalid = True
+
+    def do_start(self) -> bool:
+        return True
+
+    def do_cont(self) -> bool:
+        return False
+
+
 # TODO InvalidToken - copy from `pymeowlib/dev-new-parser branch`
 #  and also post-processor to join adjeacent invalidToekn s
 

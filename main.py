@@ -1,4 +1,3 @@
-# TODO: fix git clone not working!!!
 from tokenizer.tokenizer import Tokenizer, print_token_stream
 
 if __name__ == '__main__':
