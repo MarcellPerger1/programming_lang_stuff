@@ -74,6 +74,10 @@ AssignDivToken = DivToken.aug_assign()
 AssignModToken = ModToken.aug_assign()
 
 
+# TODO InvalidToken - copy from `pymeowlib/dev-new-parser branch`
+#  and also post-processor to join adjeacent invalidToekn s
+
+
 def init_tokens():
     """This can be imported then called to make sure that all tokens are initialised"""
     pass
