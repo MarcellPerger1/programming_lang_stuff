@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Iterable
 
 from .state import State
-from .token import Token, TOKEN_TYPES, TokenType
+from .token import Token, TOKEN_TYPES, TokenType, INVALID_TOKEN_TYPES
 from .tokens import init_tokens, WhitespaceToken
 
 init_tokens()
@@ -19,7 +19,14 @@ class Tokenizer:
         self.token: Token | None = None
         self.state = State.NONE
 
-        self.tokens: 'list[Token]' = []
+        self.tokens: list[Token] = []
+        # invalid tokens reversed -> later override earlier
+        self.all_token_types = [*TOKEN_TYPES, *reversed(INVALID_TOKEN_TYPES)]
+
+    def want_valid(self):
+        for t in self.tokens:
+            if t.type.invalid:
+                raise ValueError(f"Invalid token {t.text}")
 
     @property
     def next_index(self):
@@ -48,7 +55,7 @@ class Tokenizer:
         self.token.set_type(self.new_token_type())
 
     def new_token_type(self) -> TokenType:
-        for t in TOKEN_TYPES:
+        for t in self.all_token_types:
             tok = t(self, self.token)
             if tok.start():
                 tok.accept()
