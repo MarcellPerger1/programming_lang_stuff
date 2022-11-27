@@ -83,11 +83,11 @@ class Tokenizer:
 
 
 def print_token_stream(tks: Iterable[Token], print_ws=False, widths=(15, None)):
-    for _tok in tks:
-        if not print_ws and isinstance(_tok.type, WhitespaceToken):
+    for tok in tks:
+        if not print_ws and isinstance(tok.type, WhitespaceToken):
             continue
-        tp_repr = _tok.type.type_repr(True).rjust(widths[0])
-        text_repr = _tok.type.text_repr()
+        tp_repr = tok.type.type_repr(True).rjust(widths[0])
+        text_repr = tok.type.text_repr()
         if widths[1] is not None:
             text_repr = text_repr.rjust(widths[1])
         print(tp_repr, ' | ', text_repr)
